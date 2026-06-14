@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>داشبورد أودو × طلبات</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Tabler icons fallback - inline the most used ones as SVG if CDN fails */
+:root{--g:#1D9E75;--gd:#0F6E56;--gl:#E1F5EE;--pu:#534AB7;--pl:#EEEDFE;--co:#D85A30;--cl:#FAECE7;--am:#BA7517;--al:#FAEEDA;--bl:#185FA5;--bll:#E6F1FB;--rd:#A32D2D;--rl:#FCEBEB;--bg:#F7F8FA;--bg2:#fff;--br:#E4E7ED;--tx:#1A1D23;--tx2:#6B7280;--tx3:#9CA3AF;--r:12px;--rs:8px;--sh:0 1px 3px rgba(0,0,0,.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',Arial,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+.nav{background:var(--bg2);border-bottom:1px solid var(--br);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;box-shadow:var(--sh)}
+.nav-logo{width:38px;height:38px;border-radius:10px;background:var(--g);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-title{font-size:16px;font-weight:700}.nav-sub{font-size:11px;color:var(--tx2)}
+.nav-actions{display:flex;gap:8px;align-items:center}
+.btn{padding:7px 14px;border-radius:var(--rs);border:1px solid var(--br);background:var(--bg2);color:var(--tx);font-family:'Cairo',Arial,sans-serif;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;font-weight:500;white-space:nowrap}
+.btn:hover{background:var(--bg);border-color:#ccc}
+.btn-g{background:var(--g);color:#fff;border-color:var(--g)}.btn-g:hover{background:var(--gd)}
+.btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+.main{max-width:1280px;margin:0 auto;padding:1.5rem 2rem}
+.upload-card{background:var(--bg2);border:1px solid var(--br);border-radius:var(--r);padding:1.5rem;margin-bottom:1.5rem;box-shadow:var(--sh)}
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.upload-box{border:2px dashed var(--br);border-radius:var(--r);padding:1.5rem 1rem;text-align:center;cursor:pointer;position:relative;transition:all .2s;background:var(--bg)}
+.upload-box:hover,.upload-box.drag{border-color:var(--g);background:#f0faf6}
+.upload-box.ok{border-color:var(--g);border-style:solid;background:#f0faf6}
+.upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:3}
+.upload-icon{font-size:36px;margin-bottom:8px;color:var(--g)}
+.upload-lbl{font-size:14px;font-weight:700;color:var(--tx)}
+.upload-sub{font-size:11px;color:var(--tx2);margin-top:3px}
+.upload-name{font-size:12px;color:var(--g);margin-top:6px;font-weight:600}
+.upload-ext{font-size:10px;color:var(--tx3);margin-top:3px}
+.shift-box{background:var(--bll);border:1px solid #B5D4F4;border-radius:var(--rs);padding:12px 16px;margin-bottom:1rem}
+.shift-title{font-size:13px;font-weight:700;color:var(--bl);margin-bottom:10px}
+.shift-grid{display:grid;grid-template-columns:auto auto auto auto 1fr;gap:8px;align-items:center}
+.shift-label{font-size:12px;color:var(--tx2);white-space:nowrap}
+.shift-input{font-family:'Cairo',Arial,sans-serif;font-size:13px;padding:5px 10px;border:1px solid var(--br);border-radius:var(--rs);background:#fff}
+.shift-status{font-size:12px;color:var(--gd);margin-top:6px;font-weight:600}
+.shift-hint{font-size:11px;color:var(--bl);margin-top:4px}
+.tabs-wrap{background:var(--bg2);border:1px solid var(--br);border-radius:var(--r);box-shadow:var(--sh)}
+.tabs{display:flex;border-bottom:1px solid var(--br);overflow-x:auto}
+.tab{padding:11px 16px;font-size:13px;font-weight:600;font-family:'Cairo',Arial,sans-serif;cursor:pointer;border:none;background:none;color:var(--tx2);border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap;display:flex;align-items:center;gap:5px;transition:color .15s}
+.tab:hover{color:var(--tx)}.tab.on{color:var(--g);border-bottom-color:var(--g)}
+.panel{padding:1.5rem;display:none}.panel.on{display:block}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin-bottom:1.25rem}
+.mc{background:var(--bg2);border:1px solid var(--br);border-radius:var(--r);padding:12px 14px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.mc::before{content:'';position:absolute;top:0;right:0;width:4px;height:100%;background:var(--acc,var(--g));border-radius:0 var(--r) var(--r) 0}
+.mc-lbl{font-size:11px;color:var(--tx2);margin-bottom:5px;font-weight:500}
+.mc-val{font-size:21px;font-weight:700;color:var(--tx);line-height:1.1}
+.mc-sub{font-size:11px;color:var(--tx2);margin-top:4px}
+.up{color:#0F6E56}.dn{color:#A32D2D}.warn{color:#BA7517}
+.crow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.cc{background:var(--bg2);border:1px solid var(--br);border-radius:var(--r);padding:1.1rem;box-shadow:var(--sh)}
+.cc.full{grid-column:1/-1}
+.stitle{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.leg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:8px}
+.li{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--tx2)}
+.ld{width:10px;height:10px;border-radius:3px}
+.twrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:right;padding:7px 9px;background:var(--bg);color:var(--tx2);font-weight:600;border-bottom:1px solid var(--br);font-size:11px;white-space:nowrap}
+td{padding:7px 9px;border-bottom:1px solid rgba(228,231,237,.6);color:var(--tx)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg)}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:600}
+.b-g{background:#E1F5EE;color:#0F6E56}.b-r{background:#FCEBEB;color:#A32D2D}.b-a{background:#FAEEDA;color:#BA7517}.b-b{background:#E6F1FB;color:#185FA5}.b-p{background:#EEEDFE;color:#534AB7}
+.sbox{background:linear-gradient(135deg,#f0faf622,#eeedfe22);border:1px solid var(--g);border-radius:var(--r);padding:1.1rem 1.25rem;margin-bottom:1.1rem}
+.sbox h3{font-size:13px;font-weight:700;color:var(--gd);margin-bottom:8px}
+.sbox ul{font-size:13px;color:var(--tx);line-height:1.9;list-style:none}
+.dalert{border-radius:var(--rs);padding:11px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;font-size:13px}
+.dalert.r{background:#FCEBEB;border:1px solid #F09595;color:#A32D2D}
+.dalert.a{background:#FAEEDA;border:1px solid #FAC775;color:#BA7517}
+.dalert.g{background:#E1F5EE;border:1px solid #5DCAA5;color:#0F6E56}
+.dbar-row{margin-bottom:13px}
+.dbar-labels{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;color:var(--tx)}
+.dbar{height:8px;border-radius:4px;background:var(--bg);overflow:hidden}
+.dbar-fill{height:100%;border-radius:4px}
+.empty{text-align:center;padding:3rem 1rem;color:var(--tx3)}
+.empty svg{width:44px;height:44px;opacity:.35;display:block;margin:0 auto 10px}
+.empty p{font-size:14px;color:var(--tx2)}.empty span{font-size:12px;display:block;margin-top:5px}
+.date-badge{font-size:12px;color:var(--tx2);padding:5px 12px;background:var(--bg);border-radius:100px;border:1px solid var(--br)}
+.libs-loading{background:#FFF3CD;border:1px solid #FFC107;border-radius:var(--rs);padding:10px 14px;margin-bottom:1rem;font-size:13px;color:#856404;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:768px){.main{padding:1rem}.upload-grid,.crow{grid-template-columns:1fr}.shift-grid{grid-template-columns:1fr 1fr}.mgrid{grid-template-columns:1fr 1fr}.nav{padding:0 1rem}}
+
+/* ─── PRINT ─────────────────────────────────────────────────────────── */
+.chart-print-img{display:none}
+@media print{
+  @page{size:A4 portrait;margin:10mm 12mm}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{background:#fff!important;color:#000!important;font-size:10.5px!important}
+  .nav,.upload-card,.shift-box,.tabs,#export-btn,#pdf-btn{display:none!important}
+  .main{max-width:100%!important;padding:0!important;margin:0!important}
+  .tabs-wrap{border:none!important;box-shadow:none!important;background:transparent!important}
+  .panel{display:block!important;padding:4px 0!important}
+  .panel[data-title]::before{content:attr(data-title);display:block;font-size:12px;font-weight:700;color:#0F6E56;background:#f0faf6;border-right:4px solid #1D9E75;padding:5px 10px;margin-bottom:8px}
+  .mgrid{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:5px!important;margin-bottom:8px!important}
+  .mc{padding:6px 8px!important;border:0.5px solid #E4E7ED!important;border-radius:6px!important;break-inside:avoid}
+  .mc-val{font-size:14px!important;font-weight:700}
+  .mc-lbl,.mc-sub{font-size:8.5px!important}
+  canvas{display:none!important}
+  .chart-print-img{display:block!important;width:100%!important;max-height:170px!important;object-fit:contain}
+  .crow{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;margin-bottom:8px!important}
+  .cc{padding:8px!important;border:0.5px solid #E4E7ED!important;border-radius:6px!important;break-inside:avoid}
+  .stitle{font-size:10px!important;margin-bottom:5px!important;font-weight:700}
+  table{font-size:9px!important}
+  th{background:#f0faf6!important;color:#0F6E56!important;padding:4px 6px!important;font-size:8.5px!important;border:0.5px solid #E4E7ED!important}
+  td{padding:3px 6px!important;border-bottom:0.5px solid #E4E7ED!important}
+  tr{break-inside:avoid}
+  .badge{font-size:8px!important;padding:1px 5px!important}
+  .sbox{background:#f5fdf9!important;border:1px solid #1D9E75!important;padding:7px 10px!important;margin-bottom:7px!important;break-inside:avoid}
+  .sbox h3{font-size:11px!important}.sbox ul{font-size:10px!important;line-height:1.7}
+  .dalert{padding:5px 9px!important;font-size:9.5px!important;margin-bottom:5px!important;break-inside:avoid}
+  #p-ca{page-break-before:always;break-before:page}
+  #p-fe{page-break-before:always;break-before:page}
+  #p-di{page-break-before:always;break-before:page}
+  #p-dt{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-logo">OT</div>
+    <div>
+      <div class="nav-title">أودو × طلبات</div>
+      <div class="nav-sub">مقارنة يومية — كاش وفيزا</div>
+    </div>
+  </div>
+  <div class="nav-actions">
+    <span class="date-badge" id="today-badge"></span>
+    <button class="btn" id="export-btn" disabled onclick="exportXL()">&#11015; تحميل Excel</button>
+    <button class="btn btn-g" onclick="downloadPDF()" id="pdf-btn" disabled>&#128196; تحميل PDF</button>
+  </div>
+</nav>
+
+<div class="main">
+
+<div id="libs-status" class="libs-loading">جاري تحميل المكتبات...</div>
+
+<div class="upload-card">
+  <div class="upload-grid">
+    <div class="upload-box" id="box-o">
+      <input type="file" accept=".xlsx,.xls,.csv" id="file-o">
+      <div class="upload-icon">&#128196;</div>
+      <div class="upload-lbl">شيت أودو</div>
+      <div class="upload-sub">date &middot; payment method &middot; amount</div>
+      <div class="upload-name" id="name-o">اسحب الملف هنا أو اضغط للاختيار</div>
+      <div class="upload-ext">.xlsx &middot; .xls &middot; .csv</div>
+    </div>
+    <div class="upload-box" id="box-p">
+      <input type="file" accept=".xlsx,.xls,.csv" id="file-p">
+      <div class="upload-icon">&#128196;</div>
+      <div class="upload-lbl">شيت بورتال طلبات</div>
+      <div class="upload-sub">Order received at &middot; Subtotal &middot; Cash collected</div>
+      <div class="upload-name" id="name-p">اسحب الملف هنا أو اضغط للاختيار</div>
+      <div class="upload-ext">.xlsx &middot; .xls &middot; .csv</div>
+    </div>
+  </div>
+
+  <div class="shift-box" id="shift-box" style="display:none">
+    <div class="shift-title">&#128336; نطاق الشيفت &mdash; بورتال طلبات بيحتوي أكتر من يوم</div>
+    <div class="shift-grid">
+      <span class="shift-label">من:</span>
+      <input class="shift-input" type="datetime-local" id="shift-from">
+      <span class="shift-label">إلى:</span>
+      <input class="shift-input" type="datetime-local" id="shift-to">
+      <button class="btn btn-g" onclick="runAnalysis()" style="justify-content:center">&#8635; إعادة الحساب</button>
+    </div>
+    <div class="shift-hint">&#8505; الوقت اتحدد تلقائياً من تواريخ أودو &mdash; غيّره لو الشيفت مختلف</div>
+    <div class="shift-status" id="shift-status"></div>
+  </div>
+
+  <button class="btn btn-g" id="analyze-btn" disabled onclick="runAnalysis()" style="width:100%;justify-content:center;padding:10px;font-size:14px">
+    &#9193; ابدأ التحليل
+  </button>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab on" onclick="ST('ov')">&#9783; نظرة عامة</button>
+    <button class="tab" onclick="ST('ca')">&#128181; كاش</button>
+    <button class="tab" onclick="ST('vi')">&#128179; فيزا</button>
+    <button class="tab" onclick="ST('fe')">&#128203; مصاريف</button>
+    <button class="tab" onclick="ST('de')">&#9200; تأخيرات</button>
+    <button class="tab" onclick="ST('di')">&#9888; اختلافات</button>
+    <button class="tab" onclick="ST('dt')">&#128196; تفاصيل</button>
+  </div>
+  <div class="panel on" id="p-ov" data-title="النظرة العامة — ملخص الشيفت">
+    <div class="empty" id="empty-ov">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+      <p>ارفع الشيتين وابدأ التحليل</p><span>هيظهر هنا ملخص كامل مع مقارنة دقيقة</span>
+    </div>
+  </div>
+  <div class="panel" id="p-ca" data-title="مقارنة أوردرات الكاش"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg><p>في انتظار البيانات</p></div></div>
+  <div class="panel" id="p-vi" data-title="مقارنة أوردرات الفيزا"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg><p>في انتظار البيانات</p></div></div>
+  <div class="panel" id="p-fe" data-title="المصاريف والعمولة"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg><p>في انتظار البيانات</p></div></div>
+  <div class="panel" id="p-de" data-title="تحليل التأخيرات"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg><p>في انتظار البيانات</p></div></div>
+  <div class="panel" id="p-di" data-title="تقرير الاختلافات"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg><p>في انتظار البيانات</p></div></div>
+  <div class="panel" id="p-dt" data-title="التفاصيل الكاملة"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg><p>في انتظار البيانات</p></div></div>
+</div>
+
+</div>
+
+<script>
+// ─── LOAD LIBS DYNAMICALLY ────────────────────────────────────────────
+var XLSX_LOADED = false;
+var CHART_LOADED = false;
+var libsReady = false;
+
+function loadScript(src, cb) {
+  var s = document.createElement('script');
+  s.src = src;
+  s.onload = cb;
+  s.onerror = function() { console.error('Failed to load:', src); cb(); };
+  document.head.appendChild(s);
+}
+
+function initLibs() {
+  var status = document.getElementById('libs-status');
+  status.style.display = 'block';
+  status.textContent = 'جاري تحميل مكتبة قراءة Excel...';
+
+  // Try multiple CDN sources for XLSX
+  var xlsxSources = [
+    'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js',
+    'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
+  ];
+  var chartSources = [
+    'https://unpkg.com/chart.js@4.4.1/dist/chart.umd.js',
+    'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js'
+  ];
+
+  function tryLoad(sources, idx, onSuccess, onFail) {
+    if (idx >= sources.length) { onFail(); return; }
+    var s = document.createElement('script');
+    s.src = sources[idx];
+    s.onload = onSuccess;
+    s.onerror = function() { tryLoad(sources, idx+1, onSuccess, onFail); };
+    document.head.appendChild(s);
+  }
+
+  tryLoad(xlsxSources, 0, function() {
+    XLSX_LOADED = true;
+    status.textContent = 'جاري تحميل مكتبة الرسوم البيانية...';
+    tryLoad(chartSources, 0, function() {
+      CHART_LOADED = true;
+      libsReady = true;
+      status.style.display = 'none';
+      setupEventListeners();
+    }, function() {
+      status.textContent = 'تحذير: مكتبة الرسوم مش اتحملت — الجداول هتشتغل بس الرسوم لأ';
+      libsReady = true;
+      setupEventListeners();
+    });
+  }, function() {
+    status.style.background = '#F8D7DA';
+    status.style.borderColor = '#F5C6CB';
+    status.style.color = '#721C24';
+    status.textContent = 'خطأ: مش قادر يحمل مكتبة Excel. تأكد من اتصال الإنترنت.';
+  });
+}
+
+// ─── EVENT LISTENERS ─────────────────────────────────────────────────
+function setupEventListeners() {
+  // File input change
+  document.getElementById('file-o').addEventListener('change', function() {
+    if (this.files[0]) processFile('o', this.files[0]);
+  });
+  document.getElementById('file-p').addEventListener('change', function() {
+    if (this.files[0]) processFile('p', this.files[0]);
+  });
+
+  // Drag & drop for both boxes
+  ['o','p'].forEach(function(type) {
+    var box = document.getElementById('box-' + type);
+
+    box.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      box.classList.add('drag');
+    });
+    box.addEventListener('dragleave', function(e) {
+      e.stopPropagation();
+      box.classList.remove('drag');
+    });
+    box.addEventListener('drop', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      box.classList.remove('drag');
+      var file = e.dataTransfer.files[0];
+      if (file) processFile(type, file);
+    });
+  });
+}
+
+// ─── PROCESS FILE ─────────────────────────────────────────────────────
+function processFile(type, file) {
+  if (!XLSX_LOADED || typeof XLSX === 'undefined') {
+    alert('مكتبة Excel لسه بتتحمل، استنى ثانية وحاول تاني');
+    return;
+  }
+  document.getElementById('name-' + type).textContent = '\u2713 ' + file.name;
+  document.getElementById('box-' + type).classList.add('ok');
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var wb = XLSX.read(e.target.result, {type:'array', cellDates:true});
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+      if (type === 'o') {
+        odooRaw = rows;
+        autoSetShift();
+      } else {
+        portalRaw = rows;
+      }
+      if (odooRaw && portalRaw) {
+        document.getElementById('analyze-btn').disabled = false;
+        document.getElementById('shift-box').style.display = 'block';
+      }
+    } catch(err) {
+      alert('خطأ في قراءة الملف: ' + err.message);
+    }
+  };
+  reader.onerror = function() { alert('خطأ في قراءة الملف'); };
+  reader.readAsArrayBuffer(file);
+}
+
+// ─── STATE ────────────────────────────────────────────────────────────
+var odooRaw = null, portalRaw = null, R = null;
+var charts = {};
+
+document.getElementById('today-badge').textContent =
+  new Date().toLocaleDateString('ar-EG',{weekday:'short',year:'numeric',month:'long',day:'numeric'});
+
+// ─── TABS ─────────────────────────────────────────────────────────────
+function ST(name) {
+  var names = ['ov','ca','vi','fe','de','di','dt'];
+  document.querySelectorAll('.tab').forEach(function(t,i){ t.classList.toggle('on', names[i]===name); });
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('on'); });
+  document.getElementById('p-'+name).classList.add('on');
+}
+
+// ─── DATE HELPERS ─────────────────────────────────────────────────────
+function toISO(dt) {
+  var p = function(n){ return String(n).padStart(2,'0'); };
+  return dt.getFullYear()+'-'+p(dt.getMonth()+1)+'-'+p(dt.getDate())+'T'+p(dt.getHours())+':'+p(dt.getMinutes());
+}
+function localStr(dt) {
+  return dt.toLocaleDateString('ar-EG')+' '+dt.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
+}
+function parseOdooDate(val) {
+  if (!val) return null;
+  if (val instanceof Date && !isNaN(val)) return val;
+  var n = parseFloat(val);
+  if (!isNaN(n) && n > 40000) return new Date(Math.round((n-25569)*86400*1000));
+  var d = new Date(String(val)); return isNaN(d)?null:d;
+}
+function parsePortalDate(val) {
+  if (!val) return null;
+  if (val instanceof Date && !isNaN(val)) return val;
+  var s = String(val).trim();
+  var m = s.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
+  if (m) return new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5]);
+  var d = new Date(s); return isNaN(d)?null:d;
+}
+function autoSetShift() {
+  if (!odooRaw||!odooRaw.length) return;
+  var dates = odooRaw.map(function(r){ return parseOdooDate(r['date']||r['Date']||Object.values(r)[0]); }).filter(Boolean);
+  if (!dates.length) return;
+  var minDt = new Date(Math.min.apply(null,dates));
+  var from = new Date(minDt.getFullYear(),minDt.getMonth(),minDt.getDate(),9,0);
+  var to   = new Date(minDt.getFullYear(),minDt.getMonth(),minDt.getDate()+1,7,0);
+  document.getElementById('shift-from').value = toISO(from);
+  document.getElementById('shift-to').value   = toISO(to);
+  document.getElementById('shift-status').textContent = '\u2713 شيفت مكتشف: '+localStr(from)+' \u2190 \u2192 '+localStr(to);
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────────
+function N(v){ return parseFloat(String(v||0).replace(/[^\d.\-]/g,''))||0; }
+function fmt(n,d){ d=d===undefined?2:d; return (+n||0).toLocaleString('ar-EG',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+function fmtP(n){ return (+n||0).toFixed(1)+'%'; }
+function fmtT(dt){ return dt?dt.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}):'-'; }
+function fmtDT(dt){ return dt?(dt.toLocaleDateString('ar-EG')+' '+dt.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})):'-'; }
+function DC(d){ return Math.abs(d)<1?'up':Math.abs(d)>50?'dn':'warn'; }
+function DL(d){ return Math.abs(d)<1?'\u2713 \u0645\u062a\u0637\u0627\u0628\u0642':d>0?'\u0623\u0648\u062f\u0648 \u0623\u0639\u0644\u0649 \u2191':'\u0637\u0644\u0628\u0627\u062a \u0623\u0639\u0644\u0649 \u2193'; }
+function KI(id){ if(charts[id]){charts[id].destroy();delete charts[id];} }
+function FK(row,hints){
+  var keys=Object.keys(row);
+  for(var h=0;h<hints.length;h++) for(var k=0;k<keys.length;k++) if(keys[k].toLowerCase().indexOf(hints[h].toLowerCase())>=0) return keys[k];
+  return null;
+}
+
+// ─── MATCH ORDERS ─────────────────────────────────────────────────────
+function matchOrders(odooList, portalList, getAmt) {
+  var used = {};
+  return odooList.map(function(o) {
+    var best=null, bestTd=1e9;
+    for(var i=0;i<portalList.length;i++){
+      if(used[i]) continue;
+      var p=portalList[i];
+      var td = (o.dt&&p.dt)?Math.abs(o.dt-p.dt)/1000:1e9;
+      if(Math.abs(o.amt-getAmt(p))<0.5 && td<600 && td<bestTd){best=i;bestTd=td;}
+    }
+    if(best===null){
+      var fd=1e9;
+      for(var i=0;i<portalList.length;i++){
+        if(used[i]) continue;
+        var td2=(o.dt&&portalList[i].dt)?Math.abs(o.dt-portalList[i].dt)/1000:1e9;
+        if(td2<300&&td2<fd){best=i;fd=td2;}
+      }
+    }
+    if(best!==null) used[best]=true;
+    return {odoo:o, portal:best!==null?portalList[best]:null};
+  });
+}
+
+// ─── MAIN ANALYSIS ────────────────────────────────────────────────────
+function runAnalysis() {
+  if(!odooRaw||!portalRaw) return;
+  document.getElementById('empty-ov').style.display='none';
+
+  var fromVal=document.getElementById('shift-from').value;
+  var toVal=document.getElementById('shift-to').value;
+  var shiftFrom=fromVal?new Date(fromVal):null;
+  var shiftTo=toVal?new Date(toVal):null;
+
+  if(shiftFrom&&shiftTo) document.getElementById('shift-status').textContent='\u2713 الفترة: '+localStr(shiftFrom)+' \u2190 \u2192 '+localStr(shiftTo);
+
+  var odoo=odooRaw.map(function(r){
+    var dtKey=FK(r,['date','Date','تاريخ']);
+    var pmKey=FK(r,['payment','method','طريقة','دفع']);
+    var amtKey=FK(r,['amount','total','مبلغ','قيمة','price']);
+    var dt=parseOdooDate(dtKey?r[dtKey]:Object.values(r)[0]);
+    var pm=String(pmKey?r[pmKey]:Object.values(r)[1]||'').toLowerCase();
+    var amt=N(amtKey?r[amtKey]:Object.values(r)[2]);
+    return {dt:dt,pm:pm,amt:amt,isCash:pm.indexOf('cash')>=0,isVisa:pm.indexOf('visa')>=0||pm.indexOf('online')>=0||pm.indexOf('credit')>=0||pm.indexOf('card')>=0,raw:r};
+  }).filter(function(r){return r.dt;});
+
+  var odooCash=odoo.filter(function(r){return r.isCash;});
+  var odooVisa=odoo.filter(function(r){return r.isVisa;});
+  var odooCashTotal=odooCash.reduce(function(s,r){return s+r.amt;},0);
+  var odooVisaTotal=odooVisa.reduce(function(s,r){return s+r.amt;},0);
+  var hourDist=new Array(24).fill(0);
+  odoo.forEach(function(r){if(r.dt)hourDist[r.dt.getHours()]++;});
+
+  var pCashN=0,pVisaN=0,pCashT=0,pVisaT=0,pComm=0,pOnline=0,pMkt=0,pOps=0,pVoucher=0,pSkip=0;
+  var portalFiltered=[];
+
+  portalRaw.forEach(function(r){
+    var dtKey=FK(r,['order received','received at','تاريخ','وقت','date']);
+    var dt=parsePortalDate(dtKey?r[dtKey]:null);
+    if(shiftFrom&&shiftTo&&dt&&(dt<shiftFrom||dt>shiftTo)){pSkip++;return;}
+    if(shiftFrom&&shiftTo&&!dt){pSkip++;return;}
+    var pm=String(r['Payment type']||r['Payment method']||r['payment type']||'').toLowerCase();
+    var subtotal=N(r['Subtotal']||r['subtotal']);
+    var voucher=N(r['Voucher Funded by you']||r['voucher funded by you']||r['Voucher']);
+    var cashCol=N(r['Cash amount already collected by you']||r['cash collected']);
+    var comm=N(r['Commission']||r['commission']);
+    var onlineFee=N(r['Online Payment Fee']||r['online payment fee']);
+    var mkt=N(r['Marketing Fees Total']||r['Marketing Fees']||r['Ads Fee']);
+    var ops=N(r['Operational Charges']||r['operational charges']);
+    var visaNet=Math.max(subtotal-voucher,0);
+    pComm+=comm;pOnline+=onlineFee;pMkt+=mkt;pOps+=ops;pVoucher+=voucher;
+    if(pm.indexOf('cash')>=0){pCashT+=cashCol;pCashN++;}else{pVisaT+=visaNet;pVisaN++;}
+    portalFiltered.push({dt:dt,pm:pm,subtotal:subtotal,voucher:voucher,cashCol:cashCol,visaNet:visaNet,comm:comm,onlineFee:onlineFee,mkt:mkt,ops:ops,raw:r});
+  });
+
+  var grandOdoo=odooCashTotal+odooVisaTotal;
+  var grandPortal=pCashT+pVisaT;
+  var cashDiff=odooCashTotal-pCashT;
+  var visaDiff=odooVisaTotal-pVisaT;
+  var grandDiff=grandOdoo-grandPortal;
+  var totalFees=pComm+pOnline+pMkt+pOps;
+  var commPct=grandPortal>0?pComm/grandPortal*100:0;
+  var netFees=grandPortal-totalFees;
+  var delayOrders=odoo.filter(function(r){return r.dt&&(r.dt.getHours()>=23||r.dt.getHours()<6);});
+  var delayPct=odoo.length>0?delayOrders.length/odoo.length*100:0;
+  var periodLabel=(shiftFrom&&shiftTo)?localStr(shiftFrom)+' \u2190 \u2192 '+localStr(shiftTo):'كل البيانات';
+
+  var portalCashList=portalFiltered.filter(function(r){return r.pm.indexOf('cash')>=0;});
+  var portalVisaList=portalFiltered.filter(function(r){return r.pm.indexOf('cash')<0;});
+  var cashMatched=matchOrders([].concat(odooCash).sort(function(a,b){return a.dt-b.dt;}), [].concat(portalCashList).sort(function(a,b){return a.dt-b.dt;}), function(p){return p.cashCol;});
+  var visaMatched=matchOrders([].concat(odooVisa).sort(function(a,b){return a.dt-b.dt;}), [].concat(portalVisaList).sort(function(a,b){return a.dt-b.dt;}), function(p){return p.visaNet;});
+
+  R={grandOdoo:grandOdoo,grandPortal:grandPortal,grandDiff:grandDiff,odooCashTotal:odooCashTotal,odooVisaTotal:odooVisaTotal,pCashT:pCashT,pVisaT:pVisaT,cashDiff:cashDiff,visaDiff:visaDiff,odooCash:odooCash,odooVisa:odooVisa,portalFiltered:portalFiltered,portalCashList:portalCashList,portalVisaList:portalVisaList,cashMatched:cashMatched,visaMatched:visaMatched,pSkip:pSkip,pCashN:pCashN,pVisaN:pVisaN,pVoucher:pVoucher,pComm:pComm,commPct:commPct,pOnline:pOnline,pMkt:pMkt,pOps:pOps,totalFees:totalFees,netFees:netFees,hourDist:hourDist,delayOrders:delayOrders,delayPct:delayPct,periodLabel:periodLabel};
+
+  renderOV();renderCA();renderVI();renderFE();renderDE();renderDI();renderDT();
+  document.getElementById('export-btn').disabled=false;
+  document.getElementById('pdf-btn').disabled=false;
+}
+
+// ─── RENDER OVERVIEW ─────────────────────────────────────────────────
+function renderOV(){
+  var el=document.getElementById('p-ov');
+  el.innerHTML=
+    '<div class="sbox"><h3>&#10024; ملخص الشيفت</h3><ul>'+
+    '<li>&#128336; الفترة: <b>'+R.periodLabel+'</b></li>'+
+    '<li>إجمالي أودو: <b>'+fmt(R.grandOdoo)+' ج</b> | إجمالي طلبات: <b>'+fmt(R.grandPortal)+' ج</b> | الفرق: <b class="'+DC(R.grandDiff)+'">'+fmt(Math.abs(R.grandDiff))+' ج</b></li>'+
+    '<li>كاش: أودو <b>'+R.odooCash.length+'</b> / طلبات <b>'+R.pCashN+'</b> | فيزا: أودو <b>'+R.odooVisa.length+'</b> / طلبات <b>'+R.pVisaN+'</b></li>'+
+    '<li>عمولة: <b>'+fmt(R.pComm)+' ج</b> ('+fmtP(R.commPct)+') | صافي: <b>'+fmt(R.netFees)+' ج</b></li>'+
+    (R.pSkip>0?'<li class="warn">&#9889; '+R.pSkip+' صف خارج الشيفت</li>':'')+
+    (R.delayPct>5?'<li class="dn">&#9888; تأخيرات ليلية: '+fmtP(R.delayPct)+' ('+R.delayOrders.length+' أوردر)</li>':'')+
+    '</ul></div>'+
+    '<div class="mgrid">'+
+    mc('var(--g)','إجمالي أودو',fmt(R.grandOdoo),(R.odooCash.length+R.odooVisa.length)+' أوردر')+
+    mc('var(--pu)','إجمالي طلبات',fmt(R.grandPortal),R.portalFiltered.length+' أوردر في الشيفت')+
+    mc('var(--bl)','كاش أودو',fmt(R.odooCashTotal),R.odooCash.length+' أوردر')+
+    mc('var(--bl)','كاش طلبات',fmt(R.pCashT),R.pCashN+' أوردر')+
+    mc('var(--pu)','فيزا أودو',fmt(R.odooVisaTotal),R.odooVisa.length+' أوردر')+
+    mc('var(--pu)','فيزا طلبات (Sub−Voucher)',fmt(R.pVisaT),R.pVisaN+' أوردر')+
+    mc('var(--co)','عمولة طلبات',fmt(R.pComm),fmtP(R.commPct)+' من المبيعات')+
+    mc(Math.abs(R.grandDiff)<1?'var(--g)':Math.abs(R.grandDiff)>100?'var(--rd)':'var(--am)','الفرق الإجمالي',fmt(Math.abs(R.grandDiff)),'<span class="'+DC(R.grandDiff)+'">'+DL(R.grandDiff)+'</span>')+
+    '</div>'+
+    '<div class="crow">'+
+    '<div class="cc"><div class="stitle">&#9685; توزيع طرق الدفع</div><div class="leg"><div class="li"><div class="ld" style="background:#1D9E75"></div>كاش ('+R.odooCash.length+')</div><div class="li"><div class="ld" style="background:#534AB7"></div>فيزا ('+R.odooVisa.length+')</div></div><div style="position:relative;height:190px"><canvas id="ch-pie" role="img" aria-label="توزيع الدفع">كاش وفيزا</canvas></div></div>'+
+    '<div class="cc"><div class="stitle">&#9646; الأوردرات بالساعة</div><div style="position:relative;height:210px"><canvas id="ch-hr" role="img" aria-label="الأوردرات بالساعة">توزيع الساعات</canvas></div></div>'+
+    '</div>'+
+    '<div class="crow">'+
+    '<div class="cc"><div class="stitle">&#9646; أودو vs طلبات</div><div class="leg"><div class="li"><div class="ld" style="background:#1D9E75"></div>أودو</div><div class="li"><div class="ld" style="background:#534AB7"></div>طلبات</div></div><div style="position:relative;height:190px"><canvas id="ch-cmp" role="img" aria-label="مقارنة">مقارنة</canvas></div></div>'+
+    '<div class="cc"><div class="stitle">&#9685; توزيع المصاريف</div><div style="position:relative;height:190px"><canvas id="ch-feov" role="img" aria-label="مصاريف">توزيع</canvas></div></div>'+
+    '</div>';
+
+  if(!CHART_LOADED||typeof Chart==='undefined') return;
+  KI('pie');charts['pie']=new Chart(document.getElementById('ch-pie'),{type:'doughnut',data:{labels:['كاش','فيزا'],datasets:[{data:[R.odooCash.length,R.odooVisa.length],backgroundColor:['#1D9E75','#534AB7'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+  KI('hr');charts['hr']=new Chart(document.getElementById('ch-hr'),{type:'bar',data:{labels:Array.from({length:24},function(_,i){return i+'h';}),datasets:[{data:R.hourDist,backgroundColor:R.hourDist.map(function(_,i){return(i>=23||i<6)?'#D85A30AA':i>=12&&i<=22?'#1D9E75AA':'#534AB755';}),borderWidth:0,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9},maxRotation:0,autoSkip:false}}}}});
+  KI('cmp');charts['cmp']=new Chart(document.getElementById('ch-cmp'),{type:'bar',data:{labels:['كاش','فيزا','إجمالي'],datasets:[{label:'أودو',data:[R.odooCashTotal,R.odooVisaTotal,R.grandOdoo],backgroundColor:'#1D9E75',borderRadius:4},{label:'طلبات',data:[R.pCashT,R.pVisaT,R.grandPortal],backgroundColor:'#534AB7',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+  var fd=[R.pComm,R.pOnline+R.pOps,R.pMkt,R.netFees].filter(function(v){return v>0;});
+  var fl=['عمولة','دفع وتشغيل','ماركتنج','صافي'].filter(function(_,i){return[R.pComm,R.pOnline+R.pOps,R.pMkt,R.netFees][i]>0;});
+  KI('feov');charts['feov']=new Chart(document.getElementById('ch-feov'),{type:'doughnut',data:{labels:fl,datasets:[{data:fd,backgroundColor:['#D85A30','#534AB7','#BA7517','#1D9E75'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:12}}}}});
+}
+
+function mc(acc,lbl,val,sub){return '<div class="mc" style="--acc:'+acc+'"><div class="mc-lbl">'+lbl+'</div><div class="mc-val">'+val+'</div><div class="mc-sub">'+sub+'</div></div>';}
+
+// ─── RENDER CASH ──────────────────────────────────────────────────────
+function renderCA(){
+  var rows=R.cashMatched.map(function(m,i){
+    var o=m.odoo,p=m.portal;
+    var pv=p?p.cashCol:null;
+    var d=pv!==null?o.amt-pv:null;
+    var ok=d!==null&&Math.abs(d)<1;
+    var nm=pv===null;
+    return '<tr><td>'+(i+1)+'</td><td>'+fmtT(o.dt)+'</td><td><b>'+fmt(o.amt)+'</b></td><td>'+(p?fmtT(p.dt):'-')+'</td><td>'+(nm?'<span style="color:#9CA3AF">&mdash;</span>':fmt(pv))+'</td><td style="color:'+(ok?'#0F6E56':nm?'#9CA3AF':Math.abs(d)>10?'#A32D2D':'#BA7517')+'">'+(nm?'&mdash;':fmt(Math.abs(d)))+'</td><td><span class="badge '+(ok?'b-g':nm?'b-a':'b-r')+'">'+(ok?'\u2713 مطابق':nm?'\u26A1 بدون مطابق':'\u26A0 فرق')+'</span></td></tr>';
+  }).join('');
+  document.getElementById('p-ca').innerHTML=
+    '<div class="mgrid" style="grid-template-columns:1fr 1fr 1fr">'+
+    mc('var(--bl)','كاش أودو',fmt(R.odooCashTotal),R.odooCash.length+' أوردر')+
+    mc('var(--g)','Cash collected طلبات',fmt(R.pCashT),R.pCashN+' أوردر')+
+    mc(Math.abs(R.cashDiff)<1?'var(--g)':Math.abs(R.cashDiff)>50?'var(--rd)':'var(--am)','الفرق',fmt(Math.abs(R.cashDiff)),'<span class="'+DC(R.cashDiff)+'">'+DL(R.cashDiff)+'</span>')+
+    '</div>'+
+    '<div class="cc"><div class="stitle">&#9776; سجل أوردرات الكاش</div><div class="twrap"><table><thead><tr><th>#</th><th>وقت أودو</th><th>مبلغ أودو</th><th>وقت طلبات</th><th>Cash collected</th><th>الفرق</th><th>الحالة</th></tr></thead><tbody>'+
+    (rows||'<tr><td colspan="7" style="text-align:center;color:#9CA3AF;padding:1rem">لا توجد أوردرات كاش</td></tr>')+
+    '</tbody></table></div></div>';
+}
+
+// ─── RENDER VISA ──────────────────────────────────────────────────────
+function renderVI(){
+  var rows=R.visaMatched.map(function(m,i){
+    var o=m.odoo,p=m.portal;
+    var net=p?p.visaNet:null;
+    var d=net!==null?o.amt-net:null;
+    var ok=d!==null&&Math.abs(d)<1;
+    var nm=net===null;
+    return '<tr><td>'+(i+1)+'</td><td>'+fmtT(o.dt)+'</td><td><b>'+fmt(o.amt)+'</b></td><td>'+(p?fmtT(p.dt):'-')+'</td><td>'+(p?fmt(p.subtotal):'&mdash;')+'</td><td style="color:#BA7517">'+(p&&p.voucher?fmt(p.voucher):'&mdash;')+'</td><td><b>'+(nm?'&mdash;':fmt(net))+'</b></td><td style="color:'+(ok?'#0F6E56':nm?'#9CA3AF':Math.abs(d)>10?'#A32D2D':'#BA7517')+'">'+(nm?'&mdash;':fmt(Math.abs(d)))+'</td><td><span class="badge '+(ok?'b-g':nm?'b-a':'b-r')+'">'+(ok?'\u2713 مطابق':nm?'\u26A1 بدون مطابق':'\u26A0 فرق')+'</span></td></tr>';
+  }).join('');
+  document.getElementById('p-vi').innerHTML=
+    '<div class="mgrid" style="grid-template-columns:repeat(4,1fr)">'+
+    mc('var(--pu)','فيزا أودو',fmt(R.odooVisaTotal),R.odooVisa.length+' أوردر')+
+    mc('var(--g)','Subtotal − Voucher',fmt(R.pVisaT),R.pVisaN+' أوردر')+
+    mc('var(--am)','إجمالي الفاوتشر',fmt(R.pVoucher),'خصم من طلبات')+
+    mc(Math.abs(R.visaDiff)<1?'var(--g)':Math.abs(R.visaDiff)>50?'var(--rd)':'var(--am)','الفرق',fmt(Math.abs(R.visaDiff)),'<span class="'+DC(R.visaDiff)+'">'+DL(R.visaDiff)+'</span>')+
+    '</div>'+
+    '<div class="cc"><div class="stitle">&#9776; سجل أوردرات الفيزا</div><div class="twrap"><table><thead><tr><th>#</th><th>وقت أودو</th><th>مبلغ أودو</th><th>وقت طلبات</th><th>Subtotal</th><th>Voucher</th><th>صافي طلبات</th><th>الفرق</th><th>الحالة</th></tr></thead><tbody>'+
+    (rows||'<tr><td colspan="9" style="text-align:center;color:#9CA3AF;padding:1rem">لا توجد أوردرات فيزا</td></tr>')+
+    '</tbody></table></div></div>';
+}
+
+// ─── RENDER FEES ──────────────────────────────────────────────────────
+function renderFE(){
+  var G=R.grandPortal;
+  document.getElementById('p-fe').innerHTML=
+    '<div class="mgrid" style="grid-template-columns:repeat(3,1fr)">'+
+    mc('var(--co)','عمولة طلبات',fmt(R.pComm),fmtP(R.commPct)+' من المبيعات')+
+    mc('var(--pu)','رسوم الدفع الأونلاين',fmt(R.pOnline),fmtP(G>0?R.pOnline/G*100:0)+' من المبيعات')+
+    mc('var(--am)','مصاريف الماركتنج',fmt(R.pMkt),fmtP(G>0?R.pMkt/G*100:0)+' من المبيعات')+
+    mc('var(--bl)','التشغيل (Operational)',fmt(R.pOps),fmtP(G>0?R.pOps/G*100:0)+' من المبيعات')+
+    mc('var(--rd)','إجمالي المصاريف',fmt(R.totalFees),'<span class="dn">'+fmtP(G>0?R.totalFees/G*100:0)+' من المبيعات</span>')+
+    mc('var(--g)','الصافي بعد المصاريف','<span class="up">'+fmt(R.netFees)+'</span>','المتبقي الفعلي')+
+    '</div>'+
+    '<div class="crow">'+
+    '<div class="cc"><div class="stitle">&#9646; تفاصيل المصاريف</div><div style="position:relative;height:220px"><canvas id="ch-febar" role="img" aria-label="تفاصيل المصاريف">تفاصيل</canvas></div></div>'+
+    '<div class="cc"><div class="stitle">&#8505; تحليل</div><div style="font-size:13px;color:var(--tx2);line-height:2"><p>&#8226; العمولة = '+fmtP(R.commPct)+' من إجمالي المبيعات</p><p>&#8226; رسوم الدفع تُطبق على أوردرات الفيزا فقط</p><p>&#8226; الماركتنج يشمل Ads + Targeting + Pro Delivery</p><p>&#8226; الصافي = إجمالي طلبات &minus; كل المصاريف</p>'+(R.totalFees===0?'<p class="warn">&#9888; المصاريف = صفر &mdash; تأكد من أعمدة الشيت</p>':'')+'</div></div>'+
+    '</div>';
+  if(!CHART_LOADED||typeof Chart==='undefined') return;
+  KI('febar');charts['febar']=new Chart(document.getElementById('ch-febar'),{type:'bar',data:{labels:['عمولة','رسوم دفع','ماركتنج','تشغيل','الصافي'],datasets:[{data:[R.pComm,R.pOnline,R.pMkt,R.pOps,R.netFees],backgroundColor:['#D85A30','#534AB7','#BA7517','#185FA5','#1D9E75'],borderRadius:5,borderWidth:0}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+}
+
+// ─── RENDER DELAYS ────────────────────────────────────────────────────
+function renderDE(){
+  var peak=R.hourDist.indexOf(Math.max.apply(null,R.hourDist));
+  var slots=[
+    {label:'غداء (12-15)',cnt:R.hourDist.slice(12,16).reduce(function(a,b){return a+b;},0),c:'#1D9E75'},
+    {label:'عشاء (18-22)',cnt:R.hourDist.slice(18,23).reduce(function(a,b){return a+b;},0),c:'#534AB7'},
+    {label:'ليلي (23-05)',cnt:R.hourDist.slice(23).reduce(function(a,b){return a+b;},0)+R.hourDist.slice(0,6).reduce(function(a,b){return a+b;},0),c:'#D85A30'},
+    {label:'صباحي (06-11)',cnt:R.hourDist.slice(6,12).reduce(function(a,b){return a+b;},0),c:'#BA7517'}
+  ];
+  var mx=Math.max.apply(null,slots.map(function(s){return s.cnt;}).concat([1]));
+  document.getElementById('p-de').innerHTML=
+    '<div class="mgrid" style="grid-template-columns:1fr 1fr 1fr">'+
+    mc(R.delayPct>15?'var(--rd)':R.delayPct>5?'var(--am)':'var(--g)','أوردرات ليلية','<span style="color:'+(R.delayPct>15?'#A32D2D':R.delayPct>5?'#BA7517':'#0F6E56')+'">'+R.delayOrders.length+'</span>','من '+(R.odooCash.length+R.odooVisa.length)+' إجمالي')+
+    mc(R.delayPct>15?'var(--rd)':R.delayPct>5?'var(--am)':'var(--g)','نسبة التأخيرات','<span style="color:'+(R.delayPct>15?'#A32D2D':R.delayPct>5?'#BA7517':'#0F6E56')+'">'+fmtP(R.delayPct)+'</span>',(R.delayPct>15?'&#9888; مرتفع':R.delayPct>5?'&#9889; متوسط':'\u2713 طبيعي'))+
+    mc('var(--bl)','أكثر ساعة نشاطاً',peak+':00',R.hourDist[peak]+' أوردر')+
+    '</div>'+
+    '<div class="crow">'+
+    '<div class="cc"><div class="stitle">&#9200; توزيع حسب الفترة</div>'+
+    slots.map(function(s){return '<div class="dbar-row"><div class="dbar-labels"><span>'+s.label+'</span><span style="color:var(--tx2)">'+s.cnt+' أوردر</span></div><div class="dbar"><div class="dbar-fill" style="width:'+Math.round(s.cnt/mx*100)+'%;background:'+s.c+'"></div></div></div>';}).join('')+
+    '</div>'+
+    '<div class="cc"><div class="stitle">&#9646; الأوردرات بالساعة</div><div style="position:relative;height:200px"><canvas id="ch-del" role="img" aria-label="الأوردرات بالساعة">توزيع</canvas></div></div>'+
+    '</div>';
+  if(!CHART_LOADED||typeof Chart==='undefined') return;
+  KI('del');charts['del']=new Chart(document.getElementById('ch-del'),{type:'bar',data:{labels:Array.from({length:24},function(_,i){return i+'';}),datasets:[{data:R.hourDist,backgroundColor:R.hourDist.map(function(_,i){return(i>=23||i<6)?'#D85A30AA':i>=12&&i<=22?'#1D9E75AA':'#534AB766';}),borderWidth:0,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9},maxRotation:0,autoSkip:false}}}}});
+}
+
+// ─── RENDER DIFFS ─────────────────────────────────────────────────────
+function renderDI(){
+  var issues=[];
+  if(Math.abs(R.cashDiff)>1) issues.push({l:'فرق الكاش',v:R.cashDiff,sev:Math.abs(R.cashDiff)>50?'r':'a',tip:'تحقق من أوردرات الكاش غير المسجلة أو فروق وقت التسوية'});
+  if(Math.abs(R.visaDiff)>1) issues.push({l:'فرق الفيزا',v:R.visaDiff,sev:Math.abs(R.visaDiff)>50?'r':'a',tip:'تأكد: Subtotal &minus; Voucher في طلبات = مبلغ أودو'});
+  if(Math.abs(R.grandDiff)>1) issues.push({l:'الفرق الإجمالي',v:R.grandDiff,sev:Math.abs(R.grandDiff)>100?'r':'a',tip:'مجموع فروق الكاش والفيزا'});
+  document.getElementById('p-di').innerHTML=
+    '<div class="mgrid" style="grid-template-columns:1fr 1fr 1fr">'+
+    mc(Math.abs(R.cashDiff)<1?'var(--g)':'var(--rd)','فرق الكاش',fmt(Math.abs(R.cashDiff)),'<span class="'+DC(R.cashDiff)+'">'+DL(R.cashDiff)+'</span>')+
+    mc(Math.abs(R.visaDiff)<1?'var(--g)':'var(--rd)','فرق الفيزا',fmt(Math.abs(R.visaDiff)),'<span class="'+DC(R.visaDiff)+'">'+DL(R.visaDiff)+'</span>')+
+    mc(Math.abs(R.grandDiff)<1?'var(--g)':Math.abs(R.grandDiff)>100?'var(--rd)':'var(--am)','الفرق الإجمالي',fmt(Math.abs(R.grandDiff)),'<span class="'+DC(R.grandDiff)+'">'+DL(R.grandDiff)+'</span>')+
+    '</div>'+
+    '<div class="cc"><div class="stitle">&#9888; تقرير الاختلافات</div>'+
+    (issues.length===0?'<div class="dalert g"><b>&#10004; ممتاز &mdash; كل البيانات متطابقة!</b></div>':'')+
+    issues.map(function(iss){return '<div class="dalert '+iss.sev+'"><b>'+iss.l+': '+fmt(Math.abs(iss.v))+' ج</b> &mdash; '+(iss.v>0?'أودو أعلى':'طلبات أعلى')+'<br><span style="font-size:12px">'+iss.tip+'</span></div>';}).join('')+
+    '<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--br);font-size:13px;color:var(--tx2);line-height:2">'+
+    '<p>&#8226; فروق أقل من 1 ج: تقريب حسابي طبيعي</p>'+
+    '<p>&#8226; فرق الكاش: أوردر استُلم لكن لم يُسجل في البورتال</p>'+
+    '<p>&#8226; فرق الفيزا: فاوتشر غير محسوب | أوردر ملغي</p>'+
+    '<p>&#8226; تأكد أن نطاق الشيفت يغطي نفس الأوردرات</p>'+
+    '</div></div>';
+}
+
+// ─── RENDER DETAILS ───────────────────────────────────────────────────
+function renderDT(){
+  var all=R.odooCash.concat(R.odooVisa).sort(function(a,b){return a.dt-b.dt;});
+  var rows=all.slice(0,300).map(function(o,i){
+    return '<tr><td>'+(i+1)+'</td><td>'+fmtDT(o.dt)+'</td><td><span class="badge '+(o.isCash?'b-b':'b-p')+'">'+(o.isCash?'كاش':'فيزا')+'</span></td><td><b>'+fmt(o.amt)+'</b></td></tr>';
+  }).join('');
+  document.getElementById('p-dt').innerHTML=
+    '<div class="cc"><div class="stitle">&#9776; كل أوردرات أودو &mdash; '+all.length+' أوردر</div>'+
+    '<div class="twrap"><table><thead><tr><th>#</th><th>التاريخ والوقت</th><th>طريقة الدفع</th><th>المبلغ</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    (all.length>300?'<div style="text-align:center;padding:8px;font-size:12px;color:var(--tx3)">عرض أول 300 من '+all.length+'</div>':'')+
+    '</div>';
+}
+
+// ─── EXPORT EXCEL ─────────────────────────────────────────────────────
+function exportXL(){
+  if(!R||typeof XLSX==='undefined') return;
+  var wb=XLSX.utils.book_new();
+  var s1=[['البيان','أودو','طلبات','الفرق'],['كاش',R.odooCashTotal,R.pCashT,R.cashDiff],['فيزا',R.odooVisaTotal,R.pVisaT,R.visaDiff],['الإجمالي',R.grandOdoo,R.grandPortal,R.grandDiff],['','','',''],['عمولة',R.pComm,'',''],['رسوم دفع',R.pOnline,'',''],['ماركتنج',R.pMkt,'',''],['تشغيل',R.pOps,'',''],['إجمالي المصاريف',R.totalFees,'',''],['الصافي',R.netFees,'','']];
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s1),'ملخص');
+  var s2=[['#','وقت أودو','مبلغ أودو','وقت طلبات','Cash collected','الفرق']].concat(R.cashMatched.map(function(m,i){var o=m.odoo,p=m.portal,pv=p?p.cashCol:0;return[i+1,fmtT(o.dt),o.amt,p?fmtT(p.dt):'-',pv,o.amt-pv];}));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s2),'كاش');
+  var s3=[['#','وقت أودو','مبلغ أودو','وقت طلبات','Subtotal','Voucher','صافي طلبات','الفرق']].concat(R.visaMatched.map(function(m,i){var o=m.odoo,p=m.portal;return[i+1,fmtT(o.dt),o.amt,p?fmtT(p.dt):'-',p?p.subtotal:0,p?p.voucher:0,p?p.visaNet:0,o.amt-(p?p.visaNet:0)];}));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s3),'فيزا');
+  XLSX.writeFile(wb,'تحليل_'+new Date().toLocaleDateString('ar-EG').replace(/\//g,'-')+'.xlsx');
+}
+
+// ─── PDF DOWNLOAD ────────────────────────────────────────────────────
+function downloadPDF(){
+  if(!R) return;
+  var btn = document.getElementById('pdf-btn');
+  btn.disabled = true;
+  btn.innerHTML = '&#9203; جاري التحضير...';
+
+  function loadJS(src, cb){
+    if(document.querySelector('script[src="'+src+'"]') &&
+       ((src.includes('jspdf') && (window.jspdf||window.jsPDF)) ||
+        (src.includes('html2canvas') && window.html2canvas))){ cb(); return; }
+    var s = document.createElement('script');
+    s.src = src; s.onload = cb; s.onerror = cb;
+    document.head.appendChild(s);
+  }
+
+  loadJS('https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js', function(){
+    loadJS('https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js', function(){
+      setTimeout(doCapture, 200);
+    });
+  });
+
+  function doCapture(){
+    var jsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+    if(!jsPDF || !window.html2canvas){
+      alert('مكتبة PDF مش اتحملت');
+      btn.disabled=false; btn.innerHTML='&#128196; تحميل PDF'; return;
+    }
+
+    // A4 settings
+    var A4W = 595, A4H = 842, MG = 22;
+    var CW = A4W - MG*2;
+
+    // Section IDs to capture
+    var ids = ['p-ov','p-ca','p-vi','p-fe','p-de','p-di'];
+
+    // Show all panels
+    ids.forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.style.display = 'block';
+    });
+
+    // Capture all sections sequentially, store canvases
+    var captured = [];
+    var i = 0;
+
+    function next(){
+      if(i >= ids.length){ assemble(); return; }
+      var el = document.getElementById(ids[i]);
+      if(!el){ i++; next(); return; }
+
+      btn.innerHTML = '&#9203; ' + Math.round(i/ids.length*90) + '%...';
+
+      // Fix: draw current chart canvases as images in place so html2canvas sees them
+      el.querySelectorAll('canvas').forEach(function(cv){
+        try{
+          var img = document.createElement('img');
+          img.src = cv.toDataURL('image/png');
+          img.style.width  = cv.offsetWidth  + 'px';
+          img.style.height = cv.offsetHeight + 'px';
+          img.style.display = 'block';
+          img.setAttribute('data-was-canvas','1');
+          cv.parentNode.insertBefore(img, cv);
+          cv.style.display = 'none';
+          cv.setAttribute('data-hidden-for-pdf','1');
+        } catch(e){}
+      });
+
+      html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: el.scrollWidth,
+        height: el.scrollHeight,
+        windowWidth: 1200,
+        scrollX: 0,
+        scrollY: 0
+      }).then(function(c){
+        // Restore canvases
+        el.querySelectorAll('[data-hidden-for-pdf]').forEach(function(cv){
+          cv.style.display = ''; cv.removeAttribute('data-hidden-for-pdf');
+        });
+        el.querySelectorAll('[data-was-canvas]').forEach(function(img){
+          img.parentNode.removeChild(img);
+        });
+        captured.push(c);
+        i++; next();
+      }).catch(function(e){
+        // Restore canvases on error too
+        el.querySelectorAll('[data-hidden-for-pdf]').forEach(function(cv){
+          cv.style.display = ''; cv.removeAttribute('data-hidden-for-pdf');
+        });
+        el.querySelectorAll('[data-was-canvas]').forEach(function(img){
+          img.parentNode.removeChild(img);
+        });
+        i++; next();
+      });
+    }
+
+    function assemble(){
+      // Restore panels
+      ids.forEach(function(id){
+        var el = document.getElementById(id);
+        if(el && id !== 'p-ov') el.style.display = '';
+      });
+
+      btn.innerHTML = '&#9203; 95%...';
+
+      if(!captured.length){
+        btn.disabled=false; btn.innerHTML='&#128196; تحميل PDF'; return;
+      }
+
+      // --- Merge all canvases into one tall canvas ---
+      var SCALE = 2;
+      var srcW = Math.max.apply(null, captured.map(function(c){return c.width;}));
+      var totalH = captured.reduce(function(s,c){return s+c.height;}, 0);
+
+      var big = document.createElement('canvas');
+      big.width = srcW; big.height = totalH;
+      var ctx = big.getContext('2d');
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0,0,srcW,totalH);
+
+      var yOff = 0;
+      captured.forEach(function(c){
+        ctx.drawImage(c, 0, yOff);
+        yOff += c.height;
+      });
+
+      // --- Slice big canvas into A4 pages ---
+      var ptPerPx = CW / srcW;          // points per pixel
+      var pxPerPage = Math.floor((A4H - MG*2) / ptPerPx);
+
+      var pdf = new jsPDF({orientation:'p', unit:'pt', format:'a4'});
+      var yPx = 0;
+      var first = true;
+
+      while(yPx < totalH){
+        var slicePx = Math.min(pxPerPage, totalH - yPx);
+        var sc = document.createElement('canvas');
+        sc.width = srcW; sc.height = slicePx;
+        var sCtx = sc.getContext('2d');
+        sCtx.fillStyle = '#fff';
+        sCtx.fillRect(0,0,srcW,slicePx);
+        sCtx.drawImage(big, 0, -yPx);
+
+        if(!first) pdf.addPage();
+        var slicePtH = slicePx * ptPerPx;
+        pdf.addImage(sc.toDataURL('image/jpeg',0.90),'JPEG', MG, MG, CW, slicePtH,'','FAST');
+        yPx += slicePx;
+        first = false;
+      }
+
+      var d = new Date();
+      pdf.save('تقرير-'+d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+'.pdf');
+      btn.disabled = false;
+      btn.innerHTML = '&#128196; تحميل PDF';
+    }
+
+    next();
+  }
+}
+
+
+// ─── START ────────────────────────────────────────────────────────────
+initLibs();
+</script>
+</body>
+</html>
